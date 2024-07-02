@@ -1,0 +1,30 @@
+
+
+body{
+    background-color: aquamarine;
+    text-align: center;
+}
+p.testoverde{
+    text-align: left;
+    font-size: xx-large;
+}
+
+div p{
+
+    color:  yellow;
+}
+
+#testorosso {
+    color:brown;
+    background-color: blue;
+
+}
+
+
+.testoverde {
+    color: green;
+    text-align: center;
+    font-size: xx-large;
+    
+
+}
