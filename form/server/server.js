@@ -31,6 +31,29 @@ app.get('/formRegistrazione', (req,res) => {
 
 app.get('/gestisciDatiForm', (req, res) => {
     console.log(req.query.fname);
-    res.send("<html> Buona serata " + req.query.fname +"</html>");
-})
+    response="<html> Buona serata " + req.query.fname 
 
+    if(req.query.fsesso=="1")
+        response+="<br>Sei un maschio"
+
+    else
+         response+="<br>Sei una femmina"
+    response+="<br>La tua citta"  + req.query.fComune  
+    response+="<br>Ti voglio bene</html>";
+    res.send(response);
+});
+
+app.post('/gestisciDatiForm', (req, res) => {
+    console.log(req.body.fname);
+    response="<html> Buona serata " + req.query.fname 
+    
+    if(req.body.fsesso=="1")
+        response+="<br>Sei un maschio"
+    
+    else
+        response+="<br>Sei una femmina"
+        response+="<br>La tua citta"  + req.body.fComune  
+        response+="<br>Ti voglio bene</html>";
+        res.send(response);    
+
+});
