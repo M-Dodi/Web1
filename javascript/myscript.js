@@ -1,8 +1,8 @@
 const prompt = require('prompt-sync')();
 
-a = prompt("Inserisci primo numero: ")
-b = prompt("Inserisci secondo numero: ")
-c = prompt("Vuoi aggiungere un altro numero: ")
+var a = prompt("Inserisci primo numero: ")
+var b = prompt("Inserisci secondo numero: ")
+var c = prompt("Vuoi aggiungere un altro numero: ")
 
 if(c == 'si')
 {
@@ -10,20 +10,13 @@ if(c == 'si')
 }
 
 
-a1=parseInt(a)
-b1=parseInt(b)
-x=parseInt(x)
+var a1=parseInt(a)
+var b1=parseInt(b)
 
-if (typeof(x) == Number){
-   d = a1+b1+c1
-    console.log('La somma e: ', d)
-}
-else
-   d = a1+b1
-   console.log('La somma e: ', d)
 
-console.log(typeof(a1))
-
+x1=parseInt(x)
+d = a1+b1+x1
+console.log('La somma e: ' + d)
 
 
 
