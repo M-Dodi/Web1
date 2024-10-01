@@ -29,13 +29,27 @@ while (sOper != "5"):
         jsonDataRequest = RichiediDatiCittadino()
         
         try:
-            response = requests.post(apri_url,json=jsonDataRequest)
+            response = requests.post(api_url,json=jsonDataRequest)
+            if(response.status_code!=200):
+                print("Attenzione,servizio non disponibile")
             print(response.status_code)
             print(response.headers["Content-Type"])
             data1 = response.json()
             print(data1)        
         except:
             print("Problemi di comunicazione con il server, riprovare piu tardi")
+    
+    if sOper=="2":
+        codiceFiscaleCittadino=input("MI dai il codice fiscale?")
+        api_url = base_url + "/read_cittadino/" + codiceFiscaleCittadino
+        try:
+            response =requests.get(api_url)
+            print(response.status.get(api_url))
+
+        except:
+                    
+    
+    
     CreaInterfaccia()
     sOper = input("Seleziona operazione")
 
