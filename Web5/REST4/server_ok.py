@@ -1,8 +1,14 @@
+import sys
 from flask import Flask, jsonify, request
 from myjson import JsonDeserialize, JsonSerialize
-
+import dbclient as db
 api = Flask(__name__)
 
+##conessione database##
+cur = db.connect()
+if cur is None:
+    print("Errore connessione al DB")
+    sys.exit()
 
 file_path = "anagrafe.json"
 cittadini = JsonDeserialize(file_path)
@@ -19,13 +25,18 @@ def GestisciLogin():
         #{"username":"pippo", "password":"pippo"}
         jsonReq = request.json
         sUsernameInseritoDalClient = jsonReq["username"]
-        if sUsernameInseritoDalClient in utenti:
-            sPasswordInseritaDalClient = jsonReq["password"]
-            if sPasswordInseritaDalClient == utenti[sUsernameInseritoDalClient]["password"]:
-                sPriv = utenti[sUsernameInseritoDalClient]["privilegi"]
-                return jsonify({"Esito": "000", "Msg": "Utente registrato", "Privilegio":sPriv}), 200
-            else:
-                return jsonify({"Esito": "001", "Msg": "Credenziali errate"})
+        sPasswordInseritaDalClient = jsonReq["password"]
+        sQuery = "SELECT privilegi FROM utenti WHERE mail= '" + sUsernameInseritoDalClient + "' AND password = '" + sPasswordInseritaDalClient + "'"
+        print(sQuery)
+        iNumRows = db.read_in_db(cur,sQuery)
+        if iNumRows == 1:
+            #[0,['w']]
+            lRow = db.read_next_row(cur)
+            sPriv = lRow[1][0]
+            print("privilegi: " + sPriv)    
+
+            return jsonify({"Esito": "000", "Msg": "Utente registrato", "Privilegio":sPriv}), 200
+        
         else:
             return jsonify({"Esito": "001", "Msg": "Credenziali errate"})
     else:
