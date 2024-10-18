@@ -66,8 +66,8 @@ def GestisciAddCittadino():
 
 
 
-@api.route('/read_cittadino/<codice_fiscale>', methods=['GET'])
-def read_cittadino(codice_fiscale):
+@api.route('/read_cittadino/<codice_fiscale>/<username>/<password>', methods=['GET'])
+def read_cittadino(codice_fiscale,username,password):
 
     #prima di tutto verifico utente, password e privilegio 
     #dove utente e password me l'ha inviato il client

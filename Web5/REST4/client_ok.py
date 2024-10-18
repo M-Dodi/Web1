@@ -96,7 +96,8 @@ while iFlag==0:
         print("Aggiunta cittadino")
         api_url = base_url + "/add_cittadino"
         jsonDataRequest = GetDatiCittadino()
-        EseguiOperazione(1, api_url, jsonDataRequest)
+        jsonDataRequestNew = {"username": sUsername, "password": sPassword, "datiCittadino": jsonDataRequest}
+        EseguiOperazione(1, api_url, jsonDataRequestNew)
 
     # Richiesta dati cittadino
     elif iOper == 2:
