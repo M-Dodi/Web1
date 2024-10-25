@@ -34,7 +34,7 @@ def GestisciLogin():
         jsonReq = request.json
         sUsernameInseritoDalClient = jsonReq["username"]
         sPasswordInseritaDalClient = jsonReq["password"]
-        sQuery = "select mail,privilegi from utenti where mail= '" + sUsernameInseritoDalClient + "' and password = '" + sPasswordInseritaDalClient + "';"
+        sQuery = "select privilegi from utenti where mail= '" + sUsernameInseritoDalClient + "' and password = '" + sPasswordInseritaDalClient + "';"
         print(sQuery)
         iNumRows = db.read_in_db(cur,sQuery)
         if iNumRows == 1:
@@ -70,7 +70,7 @@ def GestisciAddCittadino():
         sQuery += "'" + codice_fiscale + "','" + nome + "','" + cognome + "','" + dataNascita + "');"
         
         print(sQuery)
-        
+
         iRet = db.write_in_db(cur,sQuery)
         
         if iRet == -2:
@@ -97,7 +97,6 @@ def read_cittadino(codice_fiscale,username,password):
     #mentre il privilegio lo vado a leggere nel mio file  (utenti.json)
 
     sQuery = "select * from cittadini where codice_fiscale='" + codice_fiscale + "';"
-
 
 
 
