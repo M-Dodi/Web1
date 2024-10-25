@@ -68,10 +68,12 @@ def GestisciAddCittadino():
         dataNascita = jsonReq.get('dataNascita')
         sQuery = "insert into anagrafe(codice_fiscale,nome,cognome,data_nascita) values ("
         sQuery += "'" + codice_fiscale + "','" + nome + "','" + cognome + "','" + dataNascita + "');"
-        print(sQuery)
-        iRet = db.write_in_db(cur,sQuery)
-        if iRet == -2:
         
+        print(sQuery)
+        
+        iRet = db.write_in_db(cur,sQuery)
+        
+        if iRet == -2:
             return jsonify({"Esito": "001", "Msg": "Cittadino già esistente"}), 200
         else:
             cittadini[codice_fiscale] = jsonReq
