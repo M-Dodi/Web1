@@ -2,20 +2,25 @@ import sys
 from flask import Flask, jsonify, request
 from myjson import JsonDeserialize, JsonSerialize
 import dbclient as db
+import psycopg2
+
+cittadini = {}
 
 api = Flask(__name__)
 
-##conessione database##
-cur = db.connect()
-if cur is None:
-    print("Errore connessione al DB")
+## Connessione al database ##
+try:
+    conn = psycopg2.connect(
+        dbname="yourdbname",
+        user="yourusername",
+        password="yourpassword",
+        host="localhost",
+        port="5432"
+    )
+    cur = conn.cursor()
+except Exception as e:
+    print(f"Errore connessione al DB: {e}")
     sys.exit()
-
-file_path = "anagrafe.json"
-cittadini = JsonDeserialize(file_path)
-
-file_path_users = "utenti.json"
-utenti = JsonDeserialize(file_path_users)
 
 def MiaProcedura():
     print("Ciao a tutti")
@@ -70,20 +75,25 @@ def GestisciAddCittadino():
         sQuery += "'" + codice_fiscale + "','" + nome + "','" + cognome + "','" + dataNascita + "');"
         
         print(sQuery)
-
-        iRet = db.write_in_db(cur,sQuery)
-        
-        if iRet == -2:
+        try:
+            cur.execute(
+                "INSERT INTO anagrafe (codice_fiscale, nome, cognome, data_nascita) VALUES (%s, %s, %s, %s)",
+                (codice_fiscale, nome, cognome, dataNascita)
+            )
+            conn.commit()
+            return jsonify({"Esito": "000", "Msg": "Cittadino aggiunto con successo"}), 201
+        except psycopg2.IntegrityError:
+            conn.rollback()
             return jsonify({"Esito": "001", "Msg": "Cittadino già esistente"}), 200
-        else:
-            cittadini[codice_fiscale] = jsonReq
-            JsonSerialize(cittadini, file_path) 
-            return jsonify({"Esito": "000", "Msg": "Cittadino aggiunto con successo"}), 200
+        except Exception as e:
+            print(f"Errore durante l'inserimento del cittadino: {e}")
+            return jsonify({"Esito": "002", "Msg": "Errore del server"}), 500
     else:
-        return jsonify({"Esito": "002", "Msg": "Formato richiesta non valido"}), 200
+        return jsonify({"Esito": "002", "Msg": "Formato richiesta non valido"}), 400
 
 
 """
+        
 Questa funzione sta sul SERVER. Riceve il codice fiscale dal client 
 e verifica se il codice e d i dati associati stanno in anagrafe.json
 """
@@ -122,12 +132,19 @@ def update_cittadino():
     if content_type == 'application/json':
         jsonReq = request.json
         codice_fiscale = jsonReq.get('codFiscale')
-        if codice_fiscale in cittadini:
-            cittadini[codice_fiscale] = jsonReq
-            JsonSerialize(cittadini, file_path)  
-            return jsonify({"Esito": "000", "Msg": "Cittadino aggiornato con successo"}), 200
-        else:
-            return jsonify({"Esito": "001", "Msg": "Cittadino non trovato"}), 200
+        try:
+            cur.execute("UPDATE cittadini SET nome = %s, cognome = %s, data_nascita = %s WHERE cod_fiscale = %s RETURNING *", (jsonReq['nome'], jsonReq['cognome'], jsonReq['dataNascita'], codice_fiscale)) 
+            updeted = cur.fetchone()
+            if updeted:
+                conn.commit()
+                return jsonify({"Esito": "000", "Msg": "Cittadino aggiornato con successo"}), 200
+            
+            else:
+                return jsonify({"Esito": "001", "Msg": "Cittadino non trovato"}), 200
+   
+        except Exception as e:
+            print(f"Errore durante l'aggiornamento: {e}")
+            return jsonify({"Esito": "002", "Msg": "Errore interno"}), 200
     else:
         return jsonify({"Esito": "002", "Msg": "Formato richiesta non valido"}), 200
 
@@ -146,12 +163,19 @@ def elimina_cittadino():
     content_type = request.headers.get('Content-Type')
     if content_type == 'application/json':
         cod = request.json.get('codFiscale')
-        if cod in cittadini:
-            del cittadini[cod]
-            JsonSerialize(cittadini, file_path)  
-            return jsonify({"Esito": "000", "Msg": "Cittadino rimosso con successo"}), 200
-        else:
-            return jsonify({"Esito": "001", "Msg": "Cittadino non trovato"}), 200
+        try:
+            cur.execute("DELETE FROM cittadini WHERE cod_fiscale = %s RETURNING *", (cod,))
+            deleted = cur.fetchone()
+            if deleted:
+                conn.commit()
+                
+                return jsonify({"Esito": "000", "Msg": "Cittadino rimosso con successo"}), 200
+            else:
+                return jsonify({"Esito": "001", "Msg": "Cittadino non trovato"}), 200
+   
+        except Exception as e:
+            print(f"Errore durante l'eliminazione: {e}")
+            return jsonify({"Esito": "002", "Msg": "Errore interno"}), 200
     else:
         return jsonify({"Esito": "002", "Msg": "Formato richiesta non valido"}), 200
 
